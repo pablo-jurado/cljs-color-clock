@@ -22,19 +22,20 @@
 (defn out []
   (reset! state (assoc @state :show-hex false)))
 
-(defn add-zero [num]
+(defn to-string [num]
   (if (< num 9)
     (str "0" num)
-    num))
+    (str num)))
 
-(defn to-hex [num]
-  (.toString num 16))
+(defn to-hex [string]
+  (js/parseInt string 16))
 
 (defn format-num [num]
   (def show-hex (get @state :show-hex))
+  (def string (to-string num))
   (if (true? show-hex)
-    (to-hex num)
-    (add-zero num)))
+    (to-hex string)
+    string))
 
 (defn clock []
   (def hour (get-in @state [:time :hour]))
@@ -42,7 +43,7 @@
   (def seconds (get-in @state [:time :sec]))
   (def color (str "#" (to-hex hour) (to-hex minutes) (to-hex seconds)))
   [:div.wrapper {:style {:background (str "radial-gradient(at top left, white , " color ")")}}
-    [:div.clock {:style {:background-color color} :on-mouse-over in :on-mouse-out out}
+    [:div.clock {:on-mouse-over in :on-mouse-out out}
       [:div.time
         [:span  (format-num hour)]
         [:span ":"]
@@ -59,7 +60,7 @@
 
 (defn app []
   [:div
-    [:h4 "Color Clock"]
+    [:h2 "Color Clock"]
     [clock]])
 
 ;; -------------------------
