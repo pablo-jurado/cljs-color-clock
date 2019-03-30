@@ -21,15 +21,27 @@
 
 (js/setInterval #(reset! my-atom (get-time (js/Date.))) 1000)
 
+(defn in []
+  (log "in"))
+
+(defn out []
+  (log "out"))
+
 (defn clock []
-  [:div "Color Clock"
-    [:p @my-atom]])
+  [:span {
+    :on-mouse-over in
+    :on-mouse-out out} @my-atom])
+
+(defn app []
+  [:div
+    [:h4 "Color Clock"]
+    [clock]])
 
 ;; -------------------------
 ;; Initialize app
 
 (defn mount-root []
-  (reagent/render [clock] (.getElementById js/document "app")))
+  (reagent/render [app] (.getElementById js/document "app")))
 
 (defn init! []
   (mount-root))
