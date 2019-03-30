@@ -2,24 +2,19 @@
   (:require
    [reagent.core :as reagent :refer [atom]]))
 
-(def state (atom {:time {:hour 10 :min 5 :sec 05} :show-hex false}))
+(def state (atom {:time {:hour nil :min nil :sec nil} :show-hex false}))
 
 (defn log [& arg]
   (js/console.log arg.arr))
 
-(defn hour [t]
+(defn get-hour [t]
   (.getHours t))
 
-(defn minutes [t]
+(defn get-minutes [t]
   (.getMinutes t))
 
-(defn seconds [t]
+(defn get-seconds [t]
   (.getSeconds t))
-
-(defn update-state []
-  ((reset! state (assoc-in @state [:time :hour] (hour (js/Date.))))
-   (reset! state (assoc-in @state [:time :min] (minutes (js/Date.))))
-   (reset! state (assoc-in @state [:time :sec] (seconds (js/Date.))))))
 
 (defn in []
   (reset! state (assoc @state :show-hex true)))
@@ -27,15 +22,35 @@
 (defn out []
   (reset! state (assoc @state :show-hex false)))
 
+(defn add-zero [num]
+  (if (< num 9)
+    (str "0" num)
+    num))
+
+(defn to-hex [num]
+  (.toString num 16))
+
+(defn format-num [num]
+  (def show-hex (get @state :show-hex))
+  (if (true? show-hex)
+    (to-hex num)
+    (add-zero num)))
+
 (defn clock []
-  (def hex (get @state :show-hex))
+  (def hour (get-in @state [:time :hour]))
+  (def minutes (get-in @state [:time :min]))
+  (def seconds (get-in @state [:time :sec]))
   [:span {:on-mouse-over in :on-mouse-out out}
-    [:div (str hex)]
-    [:span  (get-in @state [:time :hour])]
+    [:span  (format-num hour)]
     [:span ":"]
-    [:span  (get-in @state [:time :min])]
+    [:span  (format-num minutes)]
     [:span ":"]
-    [:span  (get-in @state [:time :sec])]])
+    [:span  (format-num seconds)]])
+
+(defn update-state []
+  ((reset! state (assoc-in @state [:time :hour] (get-hour (js/Date.))))
+   (reset! state (assoc-in @state [:time :min] (get-minutes (js/Date.))))
+   (reset! state (assoc-in @state [:time :sec] (get-seconds (js/Date.))))))
 
 (js/setInterval update-state 1000)
 
