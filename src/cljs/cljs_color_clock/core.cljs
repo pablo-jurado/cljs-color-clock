@@ -2,7 +2,7 @@
   (:require
    [reagent.core :as reagent :refer [atom]]))
 
-(def state (atom {:time {:hour nil :min nil :sec nil} :show-hex false}))
+(def state (atom {:time {:hour 0 :min 0 :sec 0} :show-hex false}))
 
 (defn log [& arg]
   (js/console.log arg.arr))
@@ -40,12 +40,15 @@
   (def hour (get-in @state [:time :hour]))
   (def minutes (get-in @state [:time :min]))
   (def seconds (get-in @state [:time :sec]))
-  [:span {:on-mouse-over in :on-mouse-out out}
-    [:span  (format-num hour)]
-    [:span ":"]
-    [:span  (format-num minutes)]
-    [:span ":"]
-    [:span  (format-num seconds)]])
+  (def color (str "#" (to-hex hour) (to-hex minutes) (to-hex seconds)))
+  [:div.wrapper {:style {:background (str "radial-gradient(at top left, white , " color ")")}}
+    [:div.clock {:style {:background-color color} :on-mouse-over in :on-mouse-out out}
+      [:div.time
+        [:span  (format-num hour)]
+        [:span ":"]
+        [:span  (format-num minutes)]
+        [:span ":"]
+        [:span  (format-num seconds)]]]])
 
 (defn update-state []
   ((reset! state (assoc-in @state [:time :hour] (get-hour (js/Date.))))
